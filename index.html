@@ -1,45 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Produk</title>
 </head>
 <body>
 
-    <div id="kontainer-produk-jagel">Memuat data...</div>
+    <div id="kontainer-produk-jagel">Memuat data produk, mohon tunggu...</div>
 
     <script>
         async function ambilData() {
             const container = document.getElementById('kontainer-produk-jagel');
-            
-            // Menggunakan link RAW agar data terbaca sebagai teks murni
             const url = "https://fontawesomee.github.io/Ekohadiwibowo.js";
 
             try {
                 const response = await fetch(url);
                 const text = await response.text();
                 
-                // Membersihkan teks variabel agar menjadi JSON murni
-                // Menghapus 'var data =' di awal dan ';' di akhir
-                const jsonString = text.replace(/var\s+data\s+=\s+/, '').replace(/;$/, '');
-                const produkArray = JSON.parse(jsonString);
+                // MENCARI ARRAY: Skrip ini akan mengambil teks di antara [ dan ]
+                const regex = /\[[\s\S]*\]/;
+                const match = text.match(regex);
 
-                if (Array.isArray(produkArray)) {
-                    container.innerHTML = ""; 
-                    produkArray.forEach(item => {
-                        const card = document.createElement('div');
-                        card.style.marginBottom = "20px";
-                        card.innerHTML = `
-                            <img src="${item.gambar}" style="width:100%; max-width:150px; border-radius:5px;">
-                            <h3>${item.nama}</h3>
-                            <p>Harga: ${item.harga}</p>
-                            <hr>
-                        `;
-                        container.appendChild(card);
-                    });
+                if (match) {
+                    // Mengubah string menjadi objek Array asli
+                    const produkArray = JSON.parse(match[0]);
+
+                    if (produkArray.length > 0) {
+                        container.innerHTML = ""; // Bersihkan tulisan memuat
+                        
+                        produkArray.forEach(item => {
+                            const card = document.createElement('div');
+                            // Style minimalis agar rapi di Jagel
+                            card.style.cssText = "border-bottom:1px solid #ddd; padding:15px; font-family:sans-serif;";
+                            
+                            card.innerHTML = `
+                                <img src="${item.gambar}" style="width:100%; max-width:200px; border-radius:10px; display:block; margin-bottom:10px;">
+                                <h3 style="margin:0; color:#333;">${item.nama}</h3>
+                                <p style="color:green; font-weight:bold; margin:5px 0;">Rp ${item.harga}</p>
+                                <p style="font-size:14px; color:#666;">${item.deskripsi}</p>
+                            `;
+                            container.appendChild(card);
+                        });
+                    }
+                } else {
+                    container.innerHTML = "Format data di file .js tidak dikenali (Array tidak ditemukan).";
                 }
             } catch (error) {
-                container.innerHTML = "Gagal memproses data. Pastikan format file .js benar. <br> Error: " + error;
+                container.innerHTML = "Gagal memproses data. <br> Error: " + error.message;
+                console.error(error);
             }
         }
 
