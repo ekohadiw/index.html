@@ -6,43 +6,44 @@
 </head>
 <body>
 
-    <div id="kontainer-produk-jagel">
-        </div>
-
-    <script src="https://fontawesomee.github.io/Ekohadiwibowo.js"></script>
+    <div id="kontainer-produk-jagel">Memuat data...</div>
 
     <script>
-        function renderDataEkohadi() {
+        async function ambilData() {
             const container = document.getElementById('kontainer-produk-jagel');
             
-            // Menggunakan variabel 'data' sesuai isi file Ekohadiwibowo.js
-            if (typeof data !== 'undefined' && Array.isArray(data)) {
-                container.innerHTML = ""; 
+            // Menggunakan link RAW agar data terbaca sebagai teks murni
+            const url = "https://fontawesomee.github.io/Ekohadiwibowo.js";
 
-                data.forEach(item => {
-                    const card = document.createElement('div');
-                    
-                    // Struktur HTML minimalis agar tidak merusak layout asli aplikasi
-                    card.innerHTML = `
-                        <div class="card-item">
-                            <img src="${item.gambar}" style="width:100%; display:block;">
-                            <div class="info">
-                                <h4 style="margin:5px 0;">${item.nama}</h4>
-                                <p style="font-weight:bold; color:green;">Rp${item.harga}</p>
-                                <small>${item.deskripsi}</small>
-                            </div>
-                        </div>
-                        <hr>
-                    `;
-                    container.appendChild(card);
-                });
-            } else {
-                container.innerHTML = "Data tidak dapat dimuat atau format salah.";
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Membersihkan teks variabel agar menjadi JSON murni
+                // Menghapus 'var data =' di awal dan ';' di akhir
+                const jsonString = text.replace(/var\s+data\s+=\s+/, '').replace(/;$/, '');
+                const produkArray = JSON.parse(jsonString);
+
+                if (Array.isArray(produkArray)) {
+                    container.innerHTML = ""; 
+                    produkArray.forEach(item => {
+                        const card = document.createElement('div');
+                        card.style.marginBottom = "20px";
+                        card.innerHTML = `
+                            <img src="${item.gambar}" style="width:100%; max-width:150px; border-radius:5px;">
+                            <h3>${item.nama}</h3>
+                            <p>Harga: ${item.harga}</p>
+                            <hr>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                container.innerHTML = "Gagal memproses data. Pastikan format file .js benar. <br> Error: " + error;
             }
         }
 
-        // Jalankan render setelah data terload sempurna
-        window.onload = renderDataEkohadi;
+        ambilData();
     </script>
 </body>
 </html>
