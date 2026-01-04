@@ -3,70 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Produk</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: #f4f4f4; }
+        #produk-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        /* Kontainer ini harus ada karena kode .js Anda akan mencari elemen tertentu */
+        .container { max-width: 1000px; margin: auto; }
+    </style>
 </head>
 <body>
-    <div id="kontainer-produk-jagel">Menghubungkan ke database...</div>
+
+    <div class="container">
+        <h2 style="text-align:center;">Katalog Produk</h2>
+        <div id="produk-list">Memuat data produk...</div>
+    </div>
+
+    <script src="https://fontawesomee.github.io/Ekohadiwibowo.js"></script>
 
     <script>
-        async function ambilData() {
-            const container = document.getElementById('kontainer-produk-jagel');
-            const url = "https://fontawesomee.github.io/Ekohadiwibowo.js";
-
-            try {
-                const response = await fetch(url);
-                let text = await response.text();
-                
-                // METODE TERKUAT: Menjalankan teks JS secara aman untuk mengambil variabel 'data'
-                // Ini akan mengabaikan error spasi atau karakter aneh di luar array
-                const dataRaw = new Function(text + " return data;")();
-                
-                if (Array.isArray(dataRaw)) {
-                    container.innerHTML = ""; 
-                    dataRaw.forEach(item => {
-                        const card = document.createElement('div');
-                        card.style.cssText = "border-bottom:1px solid #eee; padding:15px; margin-bottom:10px; font-family: sans-serif;";
-                        
-                        // Menampilkan data dengan aman
-                        card.innerHTML = `
-                            <div style="text-align:center;">
-                                <img src="${item.gambar || ''}" style="width:100%; max-width:250px; border-radius:10px; background:#f0f0f0;">
-                            </div>
-                            <h3 style="margin:10px 0 5px 0; color:#333;">${item.nama || 'Tanpa Nama'}</h3>
-                            <p style="color:#27ae60; font-weight:bold; margin:0; font-size:1.1em;">Rp ${item.harga || '0'}</p>
-                            <p style="font-size:13px; color:#666; line-height:1.4;">${item.deskripsi || ''}</p>
-                        `;
-                        container.appendChild(card);
-                    });
-                } else {
-                    container.innerHTML = "Data ditemukan tapi bukan format daftar (Array).";
-                }
-            } catch (error) {
-                // Jika masih gagal, kita gunakan cara alternatif terakhir: panggil sebagai script tag
-                container.innerHTML = "Sedang mencoba metode cadangan...";
-                muatManual();
+        // Kode Anda di .js tersebut otomatis berjalan saat dimuat.
+        // Jika dalam 5 detik tidak muncul apa-apa, mungkin ada masalah koneksi ke Google Sheets.
+        setTimeout(function() {
+            var pesan = document.getElementById('produk-list');
+            if (pesan.innerHTML === "Memuat data produk...") {
+                pesan.innerHTML = "Gagal memuat data. Pastikan link Google Sheets di skrip Anda sudah benar dan publik.";
             }
-        }
-
-        function muatManual() {
-            const s = document.createElement('script');
-            s.src = "https://fontawesomee.github.io/Ekohadiwibowo.js";
-            s.onload = function() {
-                const container = document.getElementById('kontainer-produk-jagel');
-                if (typeof data !== 'undefined') {
-                    container.innerHTML = "";
-                    data.forEach(item => {
-                        container.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee;">
-                            <img src="${item.gambar}" style="width:100%; max-width:150px;"><br>
-                            <b>${item.nama}</b><br>Rp ${item.harga}</div>`;
-                    });
-                } else {
-                    container.innerHTML = "Gagal memuat data sama sekali.";
-                }
-            };
-            document.body.appendChild(s);
-        }
-
-        ambilData();
+        }, 8000);
     </script>
 </body>
 </html>
