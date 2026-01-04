@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    <div id="kontainer-produk-jagel">
+        </div>
+
+    <script src="https://fontawesomee.github.io/Ekohadiwibowo.js"></script>
+
+    <script>
+        function renderDataEkohadi() {
+            const container = document.getElementById('kontainer-produk-jagel');
+            
+            // Menggunakan variabel 'data' sesuai isi file Ekohadiwibowo.js
+            if (typeof data !== 'undefined' && Array.isArray(data)) {
+                container.innerHTML = ""; 
+
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    
+                    // Struktur HTML minimalis agar tidak merusak layout asli aplikasi
+                    card.innerHTML = `
+                        <div class="card-item">
+                            <img src="${item.gambar}" style="width:100%; display:block;">
+                            <div class="info">
+                                <h4 style="margin:5px 0;">${item.nama}</h4>
+                                <p style="font-weight:bold; color:green;">Rp${item.harga}</p>
+                                <small>${item.deskripsi}</small>
+                            </div>
+                        </div>
+                        <hr>
+                    `;
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = "Data tidak dapat dimuat atau format salah.";
+            }
+        }
+
+        // Jalankan render setelah data terload sempurna
+        window.onload = renderDataEkohadi;
+    </script>
+</body>
+</html>
