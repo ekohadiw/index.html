@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Produk</title>
 </head>
 <body>
-
-    <div id="kontainer-produk-jagel">Memuat data produk, mohon tunggu...</div>
+    <div id="kontainer-produk-jagel">Sedang memproses data...</div>
 
     <script>
         async function ambilData() {
@@ -16,42 +14,40 @@
 
             try {
                 const response = await fetch(url);
-                const text = await response.text();
+                let text = await response.text();
                 
-                // MENCARI ARRAY: Skrip ini akan mengambil teks di antara [ dan ]
-                const regex = /\[[\s\S]*\]/;
-                const match = text.match(regex);
-
-                if (match) {
-                    // Mengubah string menjadi objek Array asli
-                    const produkArray = JSON.parse(match[0]);
+                // 1. CARI POSISI AWAL DAN AKHIR ARRAY [ ]
+                const awal = text.indexOf('[');
+                const akhir = text.lastIndexOf(']') + 1;
+                
+                if (awal !== -1 && akhir !== -1) {
+                    // 2. AMBIL HANYA BAGIAN DALAM KURUNG SIKU
+                    const jsonMurni = text.substring(awal, akhir);
+                    
+                    // 3. UBAH KE OBJECT
+                    const produkArray = JSON.parse(jsonMurni);
 
                     if (produkArray.length > 0) {
-                        container.innerHTML = ""; // Bersihkan tulisan memuat
-                        
+                        container.innerHTML = ""; 
                         produkArray.forEach(item => {
                             const card = document.createElement('div');
-                            // Style minimalis agar rapi di Jagel
-                            card.style.cssText = "border-bottom:1px solid #ddd; padding:15px; font-family:sans-serif;";
-                            
+                            card.style.cssText = "border-bottom:1px solid #eee; padding:15px; margin-bottom:10px;";
                             card.innerHTML = `
-                                <img src="${item.gambar}" style="width:100%; max-width:200px; border-radius:10px; display:block; margin-bottom:10px;">
-                                <h3 style="margin:0; color:#333;">${item.nama}</h3>
-                                <p style="color:green; font-weight:bold; margin:5px 0;">Rp ${item.harga}</p>
-                                <p style="font-size:14px; color:#666;">${item.deskripsi}</p>
+                                <img src="${item.gambar}" style="width:100%; max-width:180px; border-radius:8px;">
+                                <h3 style="margin:10px 0 5px 0;">${item.nama}</h3>
+                                <p style="color:#2ecc71; font-weight:bold; margin:0;">Rp ${item.harga}</p>
+                                <p style="font-size:13px; color:#777;">${item.deskripsi}</p>
                             `;
                             container.appendChild(card);
                         });
                     }
                 } else {
-                    container.innerHTML = "Format data di file .js tidak dikenali (Array tidak ditemukan).";
+                    container.innerHTML = "Format Array [ ] tidak ditemukan di file .js";
                 }
             } catch (error) {
-                container.innerHTML = "Gagal memproses data. <br> Error: " + error.message;
-                console.error(error);
+                container.innerHTML = "Sistem gagal membaca format file. <br> Pesan: " + error.message;
             }
         }
-
         ambilData();
     </script>
 </body>
