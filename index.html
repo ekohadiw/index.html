@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <div id="kontainer-produk-jagel">Sedang memproses data...</div>
+    <div id="kontainer-produk-jagel">Menghubungkan ke database...</div>
 
     <script>
         async function ambilData() {
@@ -16,38 +16,56 @@
                 const response = await fetch(url);
                 let text = await response.text();
                 
-                // 1. CARI POSISI AWAL DAN AKHIR ARRAY [ ]
-                const awal = text.indexOf('[');
-                const akhir = text.lastIndexOf(']') + 1;
+                // METODE TERKUAT: Menjalankan teks JS secara aman untuk mengambil variabel 'data'
+                // Ini akan mengabaikan error spasi atau karakter aneh di luar array
+                const dataRaw = new Function(text + " return data;")();
                 
-                if (awal !== -1 && akhir !== -1) {
-                    // 2. AMBIL HANYA BAGIAN DALAM KURUNG SIKU
-                    const jsonMurni = text.substring(awal, akhir);
-                    
-                    // 3. UBAH KE OBJECT
-                    const produkArray = JSON.parse(jsonMurni);
-
-                    if (produkArray.length > 0) {
-                        container.innerHTML = ""; 
-                        produkArray.forEach(item => {
-                            const card = document.createElement('div');
-                            card.style.cssText = "border-bottom:1px solid #eee; padding:15px; margin-bottom:10px;";
-                            card.innerHTML = `
-                                <img src="${item.gambar}" style="width:100%; max-width:180px; border-radius:8px;">
-                                <h3 style="margin:10px 0 5px 0;">${item.nama}</h3>
-                                <p style="color:#2ecc71; font-weight:bold; margin:0;">Rp ${item.harga}</p>
-                                <p style="font-size:13px; color:#777;">${item.deskripsi}</p>
-                            `;
-                            container.appendChild(card);
-                        });
-                    }
+                if (Array.isArray(dataRaw)) {
+                    container.innerHTML = ""; 
+                    dataRaw.forEach(item => {
+                        const card = document.createElement('div');
+                        card.style.cssText = "border-bottom:1px solid #eee; padding:15px; margin-bottom:10px; font-family: sans-serif;";
+                        
+                        // Menampilkan data dengan aman
+                        card.innerHTML = `
+                            <div style="text-align:center;">
+                                <img src="${item.gambar || ''}" style="width:100%; max-width:250px; border-radius:10px; background:#f0f0f0;">
+                            </div>
+                            <h3 style="margin:10px 0 5px 0; color:#333;">${item.nama || 'Tanpa Nama'}</h3>
+                            <p style="color:#27ae60; font-weight:bold; margin:0; font-size:1.1em;">Rp ${item.harga || '0'}</p>
+                            <p style="font-size:13px; color:#666; line-height:1.4;">${item.deskripsi || ''}</p>
+                        `;
+                        container.appendChild(card);
+                    });
                 } else {
-                    container.innerHTML = "Format Array [ ] tidak ditemukan di file .js";
+                    container.innerHTML = "Data ditemukan tapi bukan format daftar (Array).";
                 }
             } catch (error) {
-                container.innerHTML = "Sistem gagal membaca format file. <br> Pesan: " + error.message;
+                // Jika masih gagal, kita gunakan cara alternatif terakhir: panggil sebagai script tag
+                container.innerHTML = "Sedang mencoba metode cadangan...";
+                muatManual();
             }
         }
+
+        function muatManual() {
+            const s = document.createElement('script');
+            s.src = "https://fontawesomee.github.io/Ekohadiwibowo.js";
+            s.onload = function() {
+                const container = document.getElementById('kontainer-produk-jagel');
+                if (typeof data !== 'undefined') {
+                    container.innerHTML = "";
+                    data.forEach(item => {
+                        container.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee;">
+                            <img src="${item.gambar}" style="width:100%; max-width:150px;"><br>
+                            <b>${item.nama}</b><br>Rp ${item.harga}</div>`;
+                    });
+                } else {
+                    container.innerHTML = "Gagal memuat data sama sekali.";
+                }
+            };
+            document.body.appendChild(s);
+        }
+
         ambilData();
     </script>
 </body>
